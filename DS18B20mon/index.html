@@ -1,0 +1,66 @@
+<html>
+<head>
+	<script src="simple_rpc_service.js"></script>
+</head>
+<body onLoad='doStartUp();'>
+<h4 id="hostname"> </h4>
+<br><a target="_blank" href="/rpc/GetTemp">GetTemp</a>
+<br><a target="_blank" href="/rpc/ListSensor">ListSensor</a>
+
+<p>
+<table id="dtable" border=1>
+<tr><th>Device ID</th><th>Temperature</th></tr>
+</table>
+
+<p id="curTime"></p>
+<p><button href="#" id="getTemp" onclick="getTemp()">Get Temp</button>
+
+<script>
+
+  var dIdx = 0;
+  var tIdx = 1;
+  function getTemp() {
+	callRPCService('GetTemp',{},function(resp){
+    	if (resp) {
+			var dtable = document.getElementById("dtable");
+			var d = resp.temperatureList;
+			for (i=0; i < d.length; i++) {
+				dtable.rows[i+1].cells[tIdx].innerHTML = d[i].t;
+			}
+		}
+	});
+  };
+  function addTableRow(dt,i) {
+	  var row = dt.insertRow(i);
+	  for (j=0; j<2; j++) {
+		row.insertCell(j);
+	  }
+  };
+  function listSensor() {
+	callRPCService('ListSensor',{},function(resp){
+    	if (resp) {
+			var dtable = document.getElementById("dtable");
+			var tlen = dtable.rows.length;
+			var d = resp.deviceList;
+			for (i=0; i < d.length; i++) {
+				if (tlen <= (i+1)) addTableRow(dtable,i+1);
+				dtable.rows[i+1].cells[dIdx].innerHTML = d[i].addr;
+			}
+		}
+	});
+  };
+
+  function doStartUp() {
+	startup();
+	listSensor();
+	getTemp();
+  }
+  window.setInterval(function() {
+	getTemp();
+	var cdt = new Date();
+    document.getElementById("curTime").innerHTML = cdt.toLocaleTimeString();
+  }, 5000);
+</script>
+
+</body>
+</html>
