@@ -1,0 +1,43 @@
+<html>
+<head>
+	<script src="simple_rpc_service.js"></script>
+</head>
+<body onLoad='doStartUp();'>
+<h4 id="hostname"> </h4>
+<br><a target="_blank" href="/rpc/GetTH">RPC GetTH</a>
+
+<p>
+<table id="dtable" border=1>
+<tr><th>Humidity</th><th>Temperature</th></tr>
+<tr><td>N/A</td><td>N/A</td></tr>
+</table>
+
+<p id="curTime"></p>
+<p><button href="#" id="getTemp" onclick="getTemp()">Get Temp</button>
+
+<script>
+
+  var dIdx = 0;
+  var tIdx = 1;
+  function getTemp() {
+	callRPCService('GetTH',{},function(resp){
+    	if (resp) {
+			var dtable = document.getElementById("dtable");
+			dtable.rows[1].cells[0].innerHTML = Math.round(resp.h*100)/100 + " %";
+			dtable.rows[1].cells[1].innerHTML = parseFloat(resp.t).toFixed(2) + " F";
+		}
+	});
+  };
+  function doStartUp() {
+	startup();
+	getTemp();
+  }
+  window.setInterval(function() {
+	getTemp();
+	var cdt = new Date();
+    document.getElementById("curTime").innerHTML = cdt.toLocaleTimeString();
+  }, 5000);
+</script>
+
+</body>
+</html>
